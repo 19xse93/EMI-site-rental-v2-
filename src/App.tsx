@@ -882,7 +882,7 @@ export default function App() {
               <h1 className="text-xs sm:text-sm md:text-lg font-black text-slate-800 uppercase tracking-tight capitalize truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
                 {activeTab === 'apvs' ? 'Accounts Payable' : activeTab.replace('-', ' ')}
               </h1>
-              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest hidden sm:block">EMI Enterprise workspace system</p>
+              <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest hidden sm:block">EMI SITE RENTAL WORKSPACE DASHBOARD</p>
             </div>
           </div>
 
@@ -928,6 +928,7 @@ export default function App() {
                   apvs={apvs} 
                   dbError={dataError} 
                   dbErrorMessage={dataErrorMessage} 
+                  selectedMonth={selectedMonth}
                   onViewPoExceptions={() => {
                     setPoSpecialFilter('No APV');
                     setActiveTab('purchases');

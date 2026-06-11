@@ -24,11 +24,20 @@ interface DashboardViewProps {
   dbError: boolean;
   dbErrorMessage: string;
   onViewPoExceptions?: () => void;
+  selectedMonth: string;
 }
 
-export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage, onViewPoExceptions }: DashboardViewProps) {
+export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage, onViewPoExceptions, selectedMonth }: DashboardViewProps) {
   const TODAY = new Date();
   TODAY.setHours(0,0,0,0);
+
+  const filteredPurchases = useMemo(() => {
+    return purchases.filter(p => selectedMonth === 'All' || (p.date && p.date.startsWith(selectedMonth)));
+  }, [purchases, selectedMonth]);
+
+  const filteredApvs = useMemo(() => {
+    return apvs.filter(a => selectedMonth === 'All' || (a.invoiceDate && a.invoiceDate.startsWith(selectedMonth)));
+  }, [apvs, selectedMonth]);
 
   // Computations
   const stats = useMemo(() => {
@@ -44,7 +53,7 @@ export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage
     let contractCount = 0;
     let latePRs = 0;
 
-    purchases.forEach(p => {
+    filteredPurchases.forEach(p => {
       totalPurchases += p.amount || 0;
       totalSavings += p.discountAmount || 0;
 
@@ -69,7 +78,7 @@ export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage
       }
     });
 
-    apvs.forEach(apv => {
+    filteredApvs.forEach(apv => {
       const isCollected = apv.status === 'Paid' || apv.checkStatus === 'Collected';
       if (!isCollected && !apv.funded) {
         totalOutstanding += apv.amount || 0;
@@ -88,7 +97,7 @@ export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage
     const averageDelay = latePRs > 0 ? (totalDelayDays / latePRs).toFixed(1) : '0';
 
     // Find Overdue APVs
-    const priorityApvs = apvs.filter(apv => {
+    const priorityApvs = filteredApvs.filter(apv => {
       const isCollected = apv.status === 'Paid' || apv.checkStatus === 'Collected';
       if (isCollected || apv.funded) return false;
       const due = safeParseDate(apv.dueDate);
@@ -113,13 +122,13 @@ export default function DashboardView({ purchases, apvs, dbError, dbErrorMessage
       priorityApvs,
       latePRs
     };
-  }, [purchases, apvs]);
+  }, [filteredPurchases, filteredApvs]);
 
   const poExceptions = useMemo(() => {
-    return purchases
-      .filter(p => !apvs.some(a => a.poId === p.id))
+    return filteredPurchases
+      .filter(p => !filteredApvs.some(a => a.poId === p.id))
       .sort((a, b) => b.id.localeCompare(a.id));
-  }, [purchases, apvs]);
+  }, [filteredPurchases, filteredApvs]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
