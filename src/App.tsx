@@ -879,23 +879,23 @@ export default function App() {
               <Menu size={20} />
             </button>
             <div>
-              <h1 className="text-base sm:text-lg font-black text-slate-800 uppercase tracking-tight capitalize truncate">
+              <h1 className="text-xs sm:text-sm md:text-lg font-black text-slate-800 uppercase tracking-tight capitalize truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
                 {activeTab === 'apvs' ? 'Accounts Payable' : activeTab.replace('-', ' ')}
               </h1>
               <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest hidden sm:block">EMI Enterprise workspace system</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full max-w-xs sm:max-w-md ml-auto justify-end">
-            <div className="relative w-full max-w-xs">
+          <div className="flex items-center gap-1.5 ml-auto justify-end">
+            <div className="relative w-28 xs:w-36 sm:w-48">
               <input 
                 type="text" 
-                placeholder="Global Search records..." 
+                placeholder="Search..." 
                 value={globalSearch}
                 onChange={e => setGlobalSearch(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-250 text-xs py-1.5 pl-8 pr-3 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500 font-semibold focus:bg-white"
+                className="w-full bg-slate-50 border border-slate-250 text-[11px] sm:text-xs py-1.5 pl-7 pr-2 rounded-lg outline-none focus:ring-1 focus:ring-indigo-500 font-semibold focus:bg-white truncate"
               />
-              <Search size={12} className="absolute left-2.5 top-2.5 text-slate-400 pointer-events-none" />
+              <Search size={11} className="absolute left-2.5 top-2.5 text-slate-400 pointer-events-none" />
             </div>
 
             <select 
