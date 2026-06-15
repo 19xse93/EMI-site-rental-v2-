@@ -119,7 +119,13 @@ export default function App() {
 
   // Trigger fund allocators
   const [fundAllocDetails, setFundAllocDetails] = useState({ apvId: '', date: new Date().toISOString().split('T')[0] });
-  const [checkDetails, setCheckDetails] = useState({ apvId: '', checkNumber: '', date: new Date().toISOString().split('T')[0], status: 'Check Created' as 'Pending Check' | 'Check Created' | 'Collected' });
+  const [checkDetails, setCheckDetails] = useState({ 
+    apvId: '', 
+    checkNumber: '', 
+    date: new Date().toISOString().split('T')[0], 
+    releaseDate: new Date().toISOString().split('T')[0], 
+    status: 'Check Created' as 'Pending Check' | 'Check Created' | 'Collected' 
+  });
 
   // -------------------------------------------------------------
   // USER PERMISSIONS DERIVATIONS
@@ -388,10 +394,10 @@ export default function App() {
       await updateDoc(doc(db, "artifacts", APP_ID, "public", "data", "apvs", match.id), {
         checkNumber: checkDetails.checkNumber,
         checkDate: checkDetails.date,
-        releaseDate: isCollected ? checkDetails.date : null,
+        releaseDate: isCollected ? checkDetails.releaseDate : null,
         checkStatus: checkDetails.status,
         status: isCollected ? 'Paid' : 'Unpaid',
-        settledDate: isCollected ? checkDetails.date : null
+        settledDate: isCollected ? checkDetails.releaseDate : null
       });
 
       // Maintain cascade logic
@@ -988,6 +994,7 @@ export default function App() {
                       apvId: apv ? apv.id : '',
                       checkNumber: apv?.checkNumber || '',
                       date: apv?.checkDate || new Date().toISOString().split('T')[0],
+                      releaseDate: apv?.releaseDate || new Date().toISOString().split('T')[0],
                       status: apv?.checkStatus || 'Check Created'
                     });
                     setIsCheckModalOpen(true);
@@ -1696,6 +1703,7 @@ export default function App() {
                           apvId: matched.id,
                           checkNumber: matched.checkNumber || '',
                           date: matched.checkDate || new Date().toISOString().split('T')[0],
+                          releaseDate: matched.releaseDate || new Date().toISOString().split('T')[0],
                           status: matched.checkStatus || 'Check Created'
                         });
                       }
@@ -1739,7 +1747,7 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1 font-mono">Drawing Date *</label>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1 font-mono">Check Date *</label>
                     <input 
                       required
                       type="date" 
@@ -1750,16 +1758,35 @@ export default function App() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Check Desk Status *</label>
-                  <select 
-                    value={checkDetails.status} 
-                    onChange={e => setCheckDetails({ ...checkDetails, status: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-3 rounded-lg outline-none cursor-pointer bg-white font-semibold"
-                  >
-                    <option value="Check Created">Check Created (Unfunded/Awaiting pick-up)</option>
-                    <option value="Collected">Collected / Released (Resolves APV to paid status)</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1">Check Desk Status *</label>
+                    <select 
+                      value={checkDetails.status} 
+                      onChange={e => setCheckDetails({ ...checkDetails, status: e.target.value as any })}
+                      className="w-full bg-slate-50 border border-slate-200 text-xs py-2 px-3 rounded-lg outline-none cursor-pointer bg-white font-semibold"
+                    >
+                      <option value="Check Created">Check Created (Unfunded/Awaiting pick-up)</option>
+                      <option value="Collected">Collected / Released (Resolves APV to paid status)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={`text-[10px] font-bold uppercase block mb-1 font-mono ${checkDetails.status === 'Collected' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                      Release / Collected Date {checkDetails.status === 'Collected' ? '*' : '(Optional)'}
+                    </label>
+                    <input 
+                      required={checkDetails.status === 'Collected'}
+                      disabled={checkDetails.status !== 'Collected'}
+                      type="date" 
+                      value={checkDetails.releaseDate} 
+                      onChange={e => setCheckDetails({ ...checkDetails, releaseDate: e.target.value })}
+                      className={`w-full border text-xs py-2 px-3 rounded-lg outline-none transition-all duration-150 ${
+                        checkDetails.status === 'Collected' 
+                          ? 'bg-emerald-50/25 border-emerald-200 font-semibold text-emerald-950 focus:border-emerald-400' 
+                          : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
+                      }`}
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex justify-end gap-2">
